@@ -27,50 +27,51 @@ class _OnlineBodyState extends State<OnlineBody> {
     super.initState();
     dio = new Dio();
     dio.get(baseHttpPath + resHttpPath).then(_onValue).catchError(_onError);
-    setState(() {});
   }
 
-  void _onValue(v) {
-    Map modelMap = jsonDecode(v.toString());
+  void _onValue(Response v) {
+    Map modelMap = jsonDecode(jsonEncode(v.data));
     model = OnlineModel.fromJson(modelMap);
     if (model.isImage) {
       setState(() {
-        handleType = 1;
+        handleType = 2;
       });
     } else {
-      setState(() {
-        handleType = 2;
+      setState(() { 
+        handleType = 3;
       });
     }
   }
 
   void _onError(err) {
+    print(err);
     setState(() {
-      handleType = 0;
+      handleType = 1;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     switch (handleType) {
-      case 0:
+      case 1:
         return Container(
           alignment: Alignment.center,
           decoration: BoxDecoration(color: Colors.red),
           child: Text('check network connection'),
         );
-      case 1:
-        return Image.network(model.dataSource);
       case 2:
+        return Image.network(model.dataSource);
+      case 3:
         return NetworkPlayerLifeCycle(
-            model.dataSource,
+            'http://192.168.2.31:8001/' + model.dataSource,
             (BuildContext context, VideoPlayerController controller) =>
                 AspectRatioVideo(controller));
+      default:
+        return Container(
+          alignment: Alignment.center,
+          decoration: BoxDecoration(color: Colors.red),
+          child: Text('can not load'),
+        );
     }
-    return Container(
-      alignment: Alignment.center,
-      decoration: BoxDecoration(color: Colors.red),
-      child: Text('can not load'),
-    );
   }
 }

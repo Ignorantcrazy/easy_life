@@ -1,7 +1,7 @@
 class OnlineModel {
   final String dataSource;
   final String tag;
-  final DateTime showTime;
+  final String showTime;
   final bool isImage;
 
   OnlineModel(this.dataSource, this.tag, this.showTime, this.isImage);
