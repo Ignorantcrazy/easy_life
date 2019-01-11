@@ -1,2 +1,2 @@
-const String baseHttpPath = "http://192.168.2.31:5000";
-const String resHttpPath ="/api/memories/1";
+const String memoriesUrl ="/api/memories/";
+const String memoriesUploadUrl = "/api/memories";

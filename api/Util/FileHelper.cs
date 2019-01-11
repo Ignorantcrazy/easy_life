@@ -8,7 +8,7 @@ namespace api.Util
 {
     public class FileHelper
     {
-        public static async Task<List<OnlineModel>> GetResData(string dirPath,List<OnlineModel> oList)
+        public static async Task<List<OnlineModel>> GetResData(string dirPath, List<OnlineModel> oList)
         {
             var dInfo = new DirectoryInfo(dirPath);
             var files = dInfo.GetFiles();
@@ -17,17 +17,28 @@ namespace api.Util
             {
                 if (file.Extension.ToUpper() == ".MP4")
                 {
-                    oList.Add(new OnlineModel(){
-                        DataSource = file.FullName.Replace(dirPath,""),
-                        Tag ="",
+                    oList.Add(new OnlineModel()
+                    {
+                        DataSource = file.FullName.Replace(dirPath, ""),
+                        Tag = "",
                         ShowTime = DateTime.Now.ToShortDateString(),
                         IsImage = false
+                    });
+                }
+                if (file.Extension.ToUpper() == ".JPG" || file.Extension.ToUpper() == ".PNG")
+                {
+                    oList.Add(new OnlineModel()
+                    {
+                        DataSource = file.FullName.Replace(dirPath, "").Replace("\\","/"),
+                        Tag = "",
+                        ShowTime = DateTime.Now.ToShortDateString(),
+                        IsImage = true
                     });
                 }
             }
             foreach (var dir in dirs)
             {
-                await GetResData(dir.FullName,oList);
+                await GetResData(dir.FullName, oList);
             }
 
             return oList;

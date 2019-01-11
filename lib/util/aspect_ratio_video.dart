@@ -38,7 +38,7 @@ class _AspectRatioVideoState extends State<AspectRatioVideo> {
       final Size size = controller.value.size;
       return Center(
         child: new AspectRatio(
-          aspectRatio: size.width /size.height,
+          aspectRatio: size.width > size.height ? size.height / size.width : size.width / size.height ,
           child: VideoPlayPause(controller),
         ),
       );

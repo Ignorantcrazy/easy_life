@@ -1,24 +1,37 @@
 import 'package:flutter/material.dart';
 import 'online_body.dart';
 import 'local_body.dart';
+import 'package:easy_life/models/models.dart';
+import 'package:easy_life/util/customize_image_picker.dart';
 
 class MemonesPage extends StatefulWidget {
-  MemonesPage({Key key}) : super(key: key);
+  final Models model;
+  MemonesPage({Key key, this.model}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
-    // TODO: implement createState
     return _MemonesPageState();
   }
 }
 
 class _MemonesPageState extends State<MemonesPage> {
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
     return DefaultTabController(
       length: 2,
       child: Scaffold(
+        floatingActionButton: IconButton(
+          icon: Icon(Icons.add),
+          onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return CustomizeImagePicker(
+                model: widget.model,
+              );
+            }));
+          },
+        ),
         appBar: AppBar(
           title: Align(
             alignment: Alignment.center,
@@ -29,7 +42,7 @@ class _MemonesPageState extends State<MemonesPage> {
                   icon: Icon(Icons.network_check),
                 ),
                 Tab(
-                  icon: Icon(Icons.local_activity),
+                  icon: Icon(Icons.list),
                 ),
               ],
             ),
@@ -37,8 +50,8 @@ class _MemonesPageState extends State<MemonesPage> {
         ),
         body: TabBarView(
           children: <Widget>[
-            _buildOnlineBody(),
             _buildLocalBody(),
+            _buildOnlineBody(),
           ],
         ),
       ),
@@ -46,7 +59,9 @@ class _MemonesPageState extends State<MemonesPage> {
   }
 
   Widget _buildOnlineBody() {
-    return OnlineBody();
+    return OnlineBody(
+      model: widget.model,
+    );
   }
 
   Widget _buildLocalBody() {

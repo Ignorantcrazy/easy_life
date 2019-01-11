@@ -4,8 +4,12 @@ import 'package:easy_life/smart_appliances/smart_appliances_page.dart'
     show SmartAppliancesPage;
 import 'package:easy_life/memories/memones_page.dart' show MemonesPage;
 import 'package:easy_life/tasks/tasks_page.dart' show TasksPage;
+import 'package:easy_life/models/models.dart';
 
 class HomePage extends StatefulWidget {
+  final Models model;
+  final VoidCallback clearCache;
+  HomePage({Key key, this.model,this.clearCache}) : super(key: key);
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -18,7 +22,9 @@ class _HomePageState extends State<HomePage> {
       case 0:
         return ChatPage();
       case 1:
-        return MemonesPage();
+        return MemonesPage(
+          model: widget.model,
+        );
       case 2:
         return SmartAppliancesPage();
       case 3:
@@ -33,6 +39,14 @@ class _HomePageState extends State<HomePage> {
     // TODO: implement build
     return Scaffold(
       body: _buildBody(),
+      floatingActionButton: IconButton(
+        icon: Icon(Icons.clear),
+        tooltip: 'clear all save data',
+        onPressed: (){
+          widget.clearCache();
+        },
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
       bottomNavigationBar: BottomNavigationBar(
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(

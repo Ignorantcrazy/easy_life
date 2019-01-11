@@ -8,5 +8,6 @@ namespace api.Models
         public string Tag{get;set;}
         public string ShowTime{get;set;}
         public bool IsImage{get;set;}
+        public int Index{get;set;}
     }
 }

@@ -5,7 +5,7 @@ import 'models.dart';
 import 'package:path_provider/path_provider.dart';
 import 'local_player.dart';
 import 'package:video_player/video_player.dart';
-import 'aspect_ratio_video.dart';
+import 'package:easy_life/util/aspect_ratio_video.dart';
 
 class LocalBody extends StatefulWidget {
   LocalBody({Key key}) : super(key: key);
@@ -23,36 +23,51 @@ class _LocalBodyState extends State<LocalBody> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    getApplicationDocumentsDirectory().then((v) {
-      var dir = v.list();
-      dir.forEach((f) {
-        if (f is File) {
-          String _fileType =
-              f.path.substring(f.path.indexOf('.') + 1).toUpperCase();
-          if (_fileType == "MP4") {
-            localModelList.add(new LocalModel(f.path, false));
-          }
-          if (_fileType == "jpg") {
-            localModelList.add(new LocalModel(f.path, true));
+    getApplicationDocumentsDirectory().then((Directory v) {
+      // CustomDialog(v.path,context);
+      v.list(recursive: true).toList().then((dirlist) {
+        for (var f in dirlist) {
+          // CustomDialog(f.path,context);
+          if (f is File) {
+            String _fileName = f.path.substring(f.path.lastIndexOf('/') + 1);
+            if (_fileName.indexOf('.') > 0) {
+              String _fileType =
+                  _fileName.substring(f.path.indexOf('.') + 1).toUpperCase();
+              if (_fileType == "MP4") {
+                localModelList.add(new LocalModel(f.path, false));
+              }
+              if (_fileType == "jpg" || _fileType == "png") {
+                localModelList.add(new LocalModel(f.path, true));
+              }
+            }
           }
         }
+        if (localModelList == null) {
+          setState(() {
+            handleType = 0;
+          });
+        } else {
+          Random r = new Random();
+          int i = r.nextInt(localModelList.length - 1);
+          localModel = localModelList[i];
+          setState(() {
+            if (localModel.isImage) {
+              setState(() {
+                handleType = 1;
+              });
+            } else {
+              setState(() {
+                handleType = 2;
+              });
+            }
+          });
+        }
       });
-      if (localModelList == null) {
-        handleType = 0;
-      } else {
-        Random r = new Random();
-        int i = r.nextInt(localModelList.length - 1);
-        localModel = localModelList[i];
-        setState(() {
-          if (localModel.isImage) {
-            handleType = 1;
-          } else {
-            handleType = 2;
-          }
-        });
-      }
     }).catchError((err) {
-      handleType = 0;
+      print(err);
+      setState(() {
+        handleType = 0;
+      });
     });
   }
 
@@ -62,7 +77,7 @@ class _LocalBodyState extends State<LocalBody> {
       case 0:
         return Container(
           alignment: Alignment.center,
-          decoration: BoxDecoration(color: Colors.red),
+          decoration: BoxDecoration(color: Colors.green),
           child: Text('can not find memones'),
         );
       case 1:

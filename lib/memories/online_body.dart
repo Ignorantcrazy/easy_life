@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:easy_life/constant/constant.dart';
 import 'models.dart';
-import 'network_player.dart';
 import 'package:video_player/video_player.dart';
-import 'aspect_ratio_video.dart';
+import 'package:easy_life/util/aspect_ratio_video.dart';
+import 'package:easy_life/models/models.dart';
 
 class OnlineBody extends StatefulWidget {
-  OnlineBody({Key key}) : super(key: key);
+  final Models model;
+  OnlineBody({Key key, this.model}) : super(key: key);
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
@@ -17,6 +18,8 @@ class OnlineBody extends StatefulWidget {
 }
 
 class _OnlineBodyState extends State<OnlineBody> {
+  VideoPlayerController _controller;
+  VoidCallback _listener;
   int handleType;
   OnlineModel model;
   Dio dio;
@@ -26,7 +29,30 @@ class _OnlineBodyState extends State<OnlineBody> {
     // TODO: implement initState
     super.initState();
     dio = new Dio();
-    dio.get(baseHttpPath + resHttpPath).then(_onValue).catchError(_onError);
+    dio
+        .get(widget.model.apiBaseUrl + memoriesUrl + '99999')
+        .then(_onValue)
+        .catchError(_onError);
+    _listener = () {
+      setState(() {});
+    };
+  }
+
+  @override
+  void deactivate() {
+    if (_controller != null) {
+      _controller.setVolume(0.0);
+      _controller.removeListener(_listener);
+    }
+    super.deactivate();
+  }
+
+  @override
+  void dispose() {
+    if (_controller != null) {
+      _controller.dispose();
+    }
+    super.dispose();
   }
 
   void _onValue(Response v) {
@@ -37,17 +63,62 @@ class _OnlineBodyState extends State<OnlineBody> {
         handleType = 2;
       });
     } else {
-      setState(() { 
-        handleType = 3;
+      handleType = 3;
+      setState(() {
+        if (_controller != null) {
+          _controller.setVolume(0.0);
+          _controller.removeListener(_listener);
+        }
+        _controller = VideoPlayerController.network(
+            widget.model.resBaseUrl + model.dataSource)
+          ..addListener(_listener)
+          ..setVolume(1.0)
+          ..initialize()
+          ..setLooping(true)
+          ..play();
       });
     }
   }
 
   void _onError(err) {
-    print(err);
     setState(() {
       handleType = 1;
     });
+  }
+
+  Widget _buildImage() {
+    return GestureDetector(
+      onVerticalDragStart: (DragStartDetails dsd) {
+        dio
+            .get(widget.model.apiBaseUrl +
+                memoriesUrl +
+                (model.index + 1).toString())
+            .then(_onValue)
+            .catchError(_onError);
+      },
+      child: Image.network(widget.model.resBaseUrl + model.dataSource),
+    );
+  }
+
+  Widget _buildVideo(VideoPlayerController controller) {
+    if (controller.value.initialized) {
+      return GestureDetector(
+        onVerticalDragStart: (DragStartDetails dsd) {
+          dio
+              .get(widget.model.apiBaseUrl +
+                  memoriesUrl +
+                  (model.index + 1).toString())
+              .then(_onValue)
+              .catchError(_onError);
+        },
+        child: AspectRatioVideo(controller),
+      );
+    } else {
+      return const Text(
+        'loading……',
+        textAlign: TextAlign.center,
+      );
+    }
   }
 
   @override
@@ -60,12 +131,9 @@ class _OnlineBodyState extends State<OnlineBody> {
           child: Text('check network connection'),
         );
       case 2:
-        return Image.network(model.dataSource);
+        return _buildImage();
       case 3:
-        return NetworkPlayerLifeCycle(
-            'http://192.168.2.31:8001/' + model.dataSource,
-            (BuildContext context, VideoPlayerController controller) =>
-                AspectRatioVideo(controller));
+        return _buildVideo(_controller);
       default:
         return Container(
           alignment: Alignment.center,
