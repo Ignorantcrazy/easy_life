@@ -30,7 +30,7 @@ class _OnlineBodyState extends State<OnlineBody> {
     super.initState();
     dio = new Dio();
     dio
-        .get(widget.model.apiBaseUrl + memoriesUrl + '99999')
+        .get(widget.model.apiBaseUrl + memories_next_url + 'first')
         .then(_onValue)
         .catchError(_onError);
     _listener = () {
@@ -91,8 +91,8 @@ class _OnlineBodyState extends State<OnlineBody> {
       onVerticalDragStart: (DragStartDetails dsd) {
         dio
             .get(widget.model.apiBaseUrl +
-                memoriesUrl +
-                (model.index + 1).toString())
+                memories_next_url +
+                (model.skipNum + 1).toString())
             .then(_onValue)
             .catchError(_onError);
       },
@@ -106,8 +106,8 @@ class _OnlineBodyState extends State<OnlineBody> {
         onVerticalDragStart: (DragStartDetails dsd) {
           dio
               .get(widget.model.apiBaseUrl +
-                  memoriesUrl +
-                  (model.index + 1).toString())
+                  memories_next_url +
+                  (model.skipNum + 1).toString())
               .then(_onValue)
               .catchError(_onError);
         },

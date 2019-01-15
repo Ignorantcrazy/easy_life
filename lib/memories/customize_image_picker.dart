@@ -3,11 +3,13 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:video_player/video_player.dart';
-import 'aspect_ratio_video.dart';
+import 'package:easy_life/util/aspect_ratio_video.dart';
 import 'package:easy_life/models/models.dart';
 import 'package:dio/dio.dart';
 import 'package:easy_life/util/util.dart';
 import 'package:easy_life/constant/constant.dart';
+import 'add_comment_upload.dart';
+import 'package:intl/intl.dart';
 
 class CustomizeImagePicker extends StatefulWidget {
   final Models model;
@@ -24,6 +26,11 @@ class _CustomizeImagePickerState extends State<CustomizeImagePicker> {
   VideoPlayerController _controller;
   VoidCallback _listener;
   bool _isLoading = false;
+
+  var _title = "";
+  var _remark = "";
+  var _showTime = DateFormat('yyyy-MM-dd').format(DateTime.now());
+  var _tag = "";
 
   void _onImageButtonPressed(ImageSource source) {
     setState(() {
@@ -126,26 +133,64 @@ class _CustomizeImagePickerState extends State<CustomizeImagePicker> {
       _isLoading = true;
     });
     Dio dio = new Dio();
+    var title = getfileNameByPath(file.path);
+    if (_title != '') {
+      title = _title;
+    }
+    var tag = 'default';
+    if (_tag != '') {
+      tag = _tag;
+    }
+    var showtime = _showTime;
+    var filedata = {
+      "Title": '"' + title + '"',
+      "Remark": '"' + _remark + '"',
+      "Tag": '"' + tag + '"',
+      "ShowTime": '"' + showtime + '"'
+    };
     FormData formData = FormData.from({
       'file': UploadFileInfo(file, getfileNameByPath(file.path)),
+      'fileData': filedata
     });
     dio
-        .post(widget.model.apiBaseUrl + memoriesUploadUrl, data: formData)
+        .post(widget.model.apiBaseUrl + memories_upload_url, data: formData)
         .then((v) {
       setState(() {
         _isLoading = false;
       });
     }).catchError((err) {
+      CustomDialog(err, context);
       setState(() {
         _isLoading = false;
       });
     });
   }
 
+  void _addCommentCallback(title, showTime, tag, remark) {
+    _title = title;
+    _showTime = showTime;
+    _tag = tag;
+    _remark = remark;
+  }
+
   List<Widget> _buildStack(BuildContext context) {
     var scaffold = Scaffold(
       appBar: AppBar(
-        title: Text('image picker'),
+        title: Text('uoload memories'),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.add_comment),
+            onPressed: () {
+              showModalBottomSheet<void>(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AddCommentUpload(
+                      callback: _addCommentCallback,
+                    );
+                  });
+            },
+          ),
+        ],
       ),
       body: Center(
         child: _isVideo ? _previewVideo(_controller) : _previewImage(),
@@ -205,7 +250,17 @@ class _CustomizeImagePickerState extends State<CustomizeImagePicker> {
             child: FloatingActionButton(
               backgroundColor: Colors.white,
               onPressed: () {
+                if (uploadFile != null) {
+                  // Navigator.push(context,
+                  //     new MaterialPageRoute(builder: (BuildContext context) {
+                  //   return UploadMemories(
+                  //     file: uploadFile,
+                  //     model: widget.model,
+                  //   );
+                  // }));
+                }
                 _uploadHandle(uploadFile);
+                // _uploadHandle(uploadFile);
               },
               heroTag: 'upload',
               tooltip: 'upload clond',

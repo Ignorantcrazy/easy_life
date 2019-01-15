@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'online_body.dart';
 import 'local_body.dart';
 import 'package:easy_life/models/models.dart';
-import 'package:easy_life/util/customize_image_picker.dart';
+import 'customize_image_picker.dart';
 
 class MemonesPage extends StatefulWidget {
   final Models model;
@@ -15,7 +15,6 @@ class MemonesPage extends StatefulWidget {
 }
 
 class _MemonesPageState extends State<MemonesPage> {
-
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -32,25 +31,25 @@ class _MemonesPageState extends State<MemonesPage> {
             }));
           },
         ),
-        appBar: AppBar(
-          title: Align(
-            alignment: Alignment.center,
-            child: TabBar(
-              isScrollable: true,
-              tabs: <Widget>[
-                Tab(
-                  icon: Icon(Icons.network_check),
-                ),
-                Tab(
-                  icon: Icon(Icons.list),
-                ),
-              ],
-            ),
-          ),
-        ),
+        // appBar: AppBar(
+        //   title: Align(
+        //     alignment: Alignment.center,
+        //     child: TabBar(
+        //       isScrollable: true,
+        //       tabs: <Widget>[
+        //         Tab(
+        //           icon: Icon(Icons.network_check),
+        //         ),
+        //         Tab(
+        //           icon: Icon(Icons.list),
+        //         ),
+        //       ],
+        //     ),
+        //   ),
+        // ),
         body: TabBarView(
           children: <Widget>[
-            _buildLocalBody(),
+            // _buildLocalBody(),
             _buildOnlineBody(),
           ],
         ),
@@ -59,8 +58,11 @@ class _MemonesPageState extends State<MemonesPage> {
   }
 
   Widget _buildOnlineBody() {
-    return OnlineBody(
-      model: widget.model,
+    return Padding(
+      padding: const EdgeInsets.only(top: 1.0),
+      child: OnlineBody(
+        model: widget.model,
+      ),
     );
   }
 
